@@ -67,7 +67,11 @@ class Bucket(object):
         self._db.delete(self._bucket, key)
 
     def commit(self):
-        self._db.commit()
+        try:
+            self._db.commit()
+        except Exception as e:
+            return False 
+        return True
 
     @property
     def kv(self):
