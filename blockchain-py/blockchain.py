@@ -116,7 +116,7 @@ class Blockchain(object):
         while True:
             if not current_tip:
                 # Encounter genesis block
-                raise StopIteration
+                break
             encoded_block = self._bucket.get(current_tip)
             block = pickle.loads(encoded_block)
             yield block
