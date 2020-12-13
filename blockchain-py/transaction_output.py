@@ -17,18 +17,22 @@ class TXOutput(object):
     # the amount of reward
     subsidy = 10
 
-    def __init__(self, value, address):
-        self._value = value
-        self._address = address
-        self._public_key_hash = self._lock(address)
+    def __init__(self, value = None, address = None):
+        self._value = None 
+        self._address = None
+        self._public_key_hash = None
+
+        if value and address:
+            self._value = value
+            self._address = address
+            self._public_key_hash = self._lock(address)
 
     @staticmethod
     def _lock(address):
         return utils.address_to_pubkey_hash(address)
 
     def __repr__(self):
-        return 'TXOutput(address={0!r}, value={1!r}, public_key_hash={2!r})'.format(
-            self._address, self._value, self._public_key_hash)
+        return 'TXOutput(address={0!r}, value={1!r}, public_key_hash={2!r})'.format(self._address, self._value, self._public_key_hash)
 
     def is_locked_with_key(self, pubkey_hash):
         return self._public_key_hash == pubkey_hash
@@ -37,15 +41,24 @@ class TXOutput(object):
     def value(self):
         return self._value
 
+    @value.setter
+    def value(self, r_value):
+        self._value = r_value
+
     @property
     def address(self):
         return self._address
+
+    @address.setter
+    def address(self, r_value):
+        self._address = r_value
+        self._public_key_hash =  utils.address_to_pubkey_hash(r_value)
 
     @property
     def public_key_hash(self):
         return self._public_key_hash
 
-
+    
 # class TXOutputs(object):
 #     def __init__(self, outputs=None):
 #         if not outputs:
