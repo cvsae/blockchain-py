@@ -18,8 +18,8 @@ class TXInput(object):
     """
 
     def __init__(self, txid = None, vout= None, sig = None, pubkey = None):
-        self._tx_id = None
-        self._vout = None
+        self._tx_id = 0
+        self._vout = 0
         self._sig = None
         self._public_key = None
         
@@ -39,7 +39,7 @@ class TXInput(object):
 
     @property
     def tx_id(self):
-        return utils.decode(self._tx_id)
+        return self._tx_id
 
     @tx_id.setter
     def tx_id(self, r_value):
@@ -64,10 +64,6 @@ class TXInput(object):
     @property
     def public_key(self):
         return self._public_key
-
-    @signature.setter
-    def signature(self, sig):
-        self._sig = sig
 
     @public_key.setter
     def public_key(self, public_key):
