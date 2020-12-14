@@ -7,7 +7,7 @@ from transaction import CoinbaseTx
 
 
 class UTXOSet(object):
-    db_file = 'blockchain.db'
+    db_file = utils.GetAppDir() + str(r'\utxo.db')
     utxo_bucket = 'utxo'
 
     def __init__(self, blockchain):
