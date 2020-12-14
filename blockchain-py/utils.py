@@ -34,6 +34,15 @@ def GetAppDir():
     return strDir
 
 
+def bits2target(bits):
+    """ Convert bits to target """
+    exponent = ((bits >> 24) & 0xff)
+    mantissa = bits & 0x7fffff
+    if (bits & 0x800000) > 0:
+        mantissa *= -1 
+    return (mantissa * (256**(exponent-3)))
+
+
 def serialize(data):
     return pickle.dumps(data)
 
