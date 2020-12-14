@@ -2,10 +2,36 @@ import hashlib
 import binascii
 import unittest
 import pickle
+import os
 
 import ecdsa
 
 import base58
+
+
+nSubsibyHalvingInterval = 100
+strSetDataDir = False
+
+def GetAppDir():
+    strDir = ''
+    if strSetDataDir:
+        strDir = strSetDataDir
+    elif os.getenv("APPDATA"):
+         strDir = "%s\\mycoinsss" %os.getenv("APPDATA")
+    elif of.getenv("USERPROFILE"):
+        strAppData = "%s\\Application Data" %os.getenv("USERPROFILE")
+        fMkdirDone = False 
+        if not fMkdirDone:
+            fMkdirDone = True
+            os.mkdir(strAppData)
+        strDir = "%s\\mycoinsss" %strAppData
+    else:
+        return "."
+
+    if not os.path.exists(strDir):
+        os.mkdir(strDir)
+
+    return strDir
 
 
 def serialize(data):
@@ -66,6 +92,13 @@ def sum256_byte(*args):
     for arg in args:
         m.update(arg)
     return m.digest()
+
+
+def GetBlockValue(height, fees):
+    subsidy = nCoin * COIN
+    subsidy >>= (height / nSubsibyHalvingInterval)
+    return subsidy + fees
+
 
 
 class ContinueIt(Exception):
