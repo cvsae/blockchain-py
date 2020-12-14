@@ -21,8 +21,8 @@ class Transaction(object):
 
     def __init__(self, tx_id=None, vin=None, vout=None):
         self._id = tx_id
-        self._vin = vin
-        self._vout = vout
+        self._vin = [TXInput()]
+        self._vout = [TXOutput()]
 
     def __repr__(self):
         return 'Transaction(id={0!r}, vin={1!r}, vout={2!r})'.format(
@@ -40,9 +40,17 @@ class Transaction(object):
     def vin(self):
         return self._vin
 
+    @vin.setter
+    def vin(self, r_value):
+        self._vin = r_value
+
     @property
     def vout(self):
         return self._vout
+
+    @vout.setter
+    def vout(self, r_value):
+        self._vout = r_value
 
     def set_id(self):
         # sets ID of a transaction
@@ -58,16 +66,27 @@ class Transaction(object):
         outputs = []
 
         for vin in self.vin:
-            inputs.append(TXInput(vin.tx_id, vin.vout, None, None))
+            ctxin = TXInput()
+            ctxin._tx_id = vin.tx_id
+            ctxin._vin = vin.vout 
+            ctxin._sig = None 
+            ctxin._public_key = None 
+
+            inputs.append(ctxin)
 
         for vout in self.vout:
             outputs.append(TXOutput(vout.value, vout.address))
 
-        return Transaction(self.ID, inputs, outputs)
+        txnew = Transaction()
+        txnew._id = self.ID
+        txnew._vin = inputs
+        txnew._vout = outputs
+
+        return txnew
 
     def sign(self, priv_key, prev_txs):
         for vin in self.vin:
-            if not prev_txs[vin.tx_id].ID:
+            if prev_txs[vin.tx_id].isCoinBase():
                 # log.error("Previous transaction is not correct")
                 print("Previous transaction is not correct")
 
@@ -102,13 +121,42 @@ class Transaction(object):
             tx_copy.vin[in_id].public_key = None
 
             sig = self.vin[in_id].signature
+
             # vk = ecdsa.VerifyingKey.from_string(
             #     vin.public_key[2:], curve=ecdsa.SECP256k1)
             vk = utils.pubkey_to_verifykey(vin.public_key)
+
             if not vk.verify(sig, utils.encode(tx_copy.ID)):
                 return False
 
         return True
+
+    def to_bytes(self):
+        return utils.serialize(self)
+
+    def CheckTransaction(self):
+        # Basic checks that don't depend on any context
+        if len(self.vin) == 0 or len(self.vout) == 0:
+            print("Transaction::CheckTransaction() : vin or vout empty")
+            return False
+
+        # Check for negative values
+        for txout in self.vout:
+            if txout.value < 0:
+                print("CTransaction::CheckTransaction() : txout.nValue negative")
+                return False
+
+        if not self.isCoinBase():
+            for txin in self.vin:
+                if txin.tx_id == 0:
+                    print("CTransaction::CheckTransaction() : prevout is null")
+                    return False
+        
+        return True
+
+
+    def isCoinBase(self):
+        return self.vin[0].tx_id == b''
 
 
 class CoinbaseTx(object):
@@ -194,8 +242,13 @@ class UTXOTx(object):
         # Build a list of inputs
         for tx_id, outs in valid_outputs.items():
             for out in outs:
-                input = TXInput(tx_id, out, None, wallet.public_key)
-                inputs.append(input)
+                ctxin = TXInput()
+                ctxin._tx_id = tx_id
+                ctxin._vout = out 
+                ctxin._signature = None 
+                ctxin._public_key = wallet.public_key
+
+                inputs.append(ctxin)
 
         # Build a list of outputs
         outputs.append(TXOutput(amount, to_addr))
@@ -203,16 +256,20 @@ class UTXOTx(object):
             # A change
             outputs.append(TXOutput(acc-amount, from_addr))
 
-        self._tx = Transaction(None, inputs, outputs).set_id()
+        self._tx = Transaction()
+        self._tx.vin = inputs
+        self._tx.vout = outputs
+        self._tx.set_id()
+        
         self._utxo_set = utxo_set
+        
         self._sign_utxo(wallet.private_key)
 
     def to_bytes(self):
         return utils.serialize(self)
 
     def __repr__(self):
-        return 'UTXOTx(id={0!r}, vin={1!r}, vout={2!r}, utxo_set={3!r})'.format(
-            self._tx.ID, self._tx.vin, self._tx.vout, self._utxo_set)
+        return 'UTXOTx(id={0!r}, vin={1!r}, vout={2!r}, utxo_set={3!r})'.format(self._tx.ID, self._tx.vin, self._tx.vout, self._utxo_set)
 
     @property
     def ID(self):
