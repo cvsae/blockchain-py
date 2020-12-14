@@ -29,10 +29,11 @@ class Block(object):
         self._prev_block_hash = None
         self._hash = None
         self._nonce = None
+        self._bits = None 
 
     def __repr__(self):
-        return 'Block(timestamp={0!r}, tx_lst={1!r}, prev_block_hash={2!r}, hash={3!r}, nonce={4!r})'.format(
-            self._timestamp, self._tx_lst, self._prev_block_hash, self._hash, self._nonce)
+        return 'Block(timestamp={0!r}, tx_lst={1!r}, prev_block_hash={2!r}, hash={3!r}, nonce={4!r}, bits={5!r})'.format(
+            self._timestamp, self._tx_lst, self._prev_block_hash, self._hash, self._nonce, self._bits)
 
     @property
     def hash(self):
@@ -42,7 +43,7 @@ class Block(object):
         data_lst = [self.prev_block_hash,
                     self.hash_transactions(),
                     self.timestamp,
-                    str(1 << (256 - 1)),
+                    str(self.bits),
                     str(self._nonce)]
         data = utils.encode(''.join(data_lst))
         hash_hex = utils.sum256_hex(data)
@@ -62,6 +63,14 @@ class Block(object):
     @property
     def timestamp(self):
         return str(self._timestamp)
+
+    @property
+    def bits(self):
+        return self._bits
+
+    @bits.setter
+    def bits(self, r_value):
+        self._bits = r_value
 
     @timestamp.setter
     def timestamp(self, r_value):
