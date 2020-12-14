@@ -3,7 +3,7 @@
 # blockchain-py
 
 
-This is a python imlementation of [blockchain_go](https://github.com/Jeiwan/blockchain_go)
+This is a fork of [blockchain-py](https://github.com/yummybian/blockchain-py)  witch is a python imlementation of [blockchain_go](https://github.com/Jeiwan/blockchain_go)
 
 ## Preparation
 ### Install [pipenv](https://github.com/pypa/pipenv)
