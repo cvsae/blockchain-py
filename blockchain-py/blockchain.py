@@ -6,8 +6,10 @@ from collections import defaultdict
 from block import Block
 from db import Bucket
 from transaction import CoinbaseTx
-from utils import ContinueIt, BreakIt
+from utils import ContinueIt, BreakIt, GetAppDir
 from errors import NotFoundTransaction
+
+
 
 
 class Blockchain(object):
@@ -18,42 +20,42 @@ class Blockchain(object):
         _bucket (dict): bucket of DB 
     """
     latest = 'l'
-    db_file = 'blockchain.db'
+    db_file = GetAppDir() + str(r'\blockchain.db')
     block_bucket = 'blocks'
     genesis_coinbase_data = 'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks'
 
-    def __init__(self, address=None):
+    def __init__(self):
         self._bucket = Bucket(Blockchain.db_file, Blockchain.block_bucket)
 
         try:
             self._tip = self._bucket.get('l')
         except KeyError:
-            if not address:
-                self._tip = None
-            else:
-                cb_tx = CoinbaseTx(
-                    address, Blockchain.genesis_coinbase_data)
-                genesis = Block([cb_tx]).pow_of_block()
-                self._block_put(genesis)
+            self._tip = None
+        
 
     def _block_put(self, block):
+
+        for tx in block._tx_lst:
+
+            print(tx)
+
+            if not self.verify_transaction(tx):
+
+                print('Verify transactions faild')
+
+
+                return False
+
+
+
         self._bucket.put(block.hash, block.serialize())
         self._bucket.put('l', block.hash)
         self._tip = block.hash
-        self._bucket.commit()
 
-    def MineBlock(self, transaction_lst):
-        # Mines a new block with the provided transactions
-        last_hash = self._bucket.get('l')
+        
+        return self._bucket.commit()
 
-        for tx in transaction_lst:
-            if not self.verify_transaction(tx):
-                print("ERROR: Invalid transaction")
-                sys.exit()
-
-        new_block = Block(transaction_lst, last_hash).pow_of_block()
-        self._block_put(new_block)
-        return new_block
+    
 
     def find_unspent_transactions(self, pubkey_hash):
         # Returns a list of transactions containing unspent outputs
@@ -122,13 +124,27 @@ class Blockchain(object):
             yield block
             current_tip = block.prev_block_hash
 
+    def haveBlock(self, block_hash):
+        for block in self.blocks:
+            if block.hash == block_hash:
+                return True 
+        return False
+
+
+
+    def getBlock(self, block_hash):
+        if self.haveBlock(block_hash):
+            for block in self.blocks:
+                if block.hash == block_hash:
+                    return block 
+        return None
+
     def find_transaction(self, ID):
         # finds a transaction by its ID
         for block in self.blocks:
             for tx in block.transactions:
                 if tx.ID == ID:
                     return tx
-
         # return None
         raise NotFoundTransaction
 
@@ -141,7 +157,7 @@ class Blockchain(object):
         tx.sign(priv_key, prev_txs)
 
     def verify_transaction(self, tx):
-        if isinstance(tx, CoinbaseTx):
+        if tx.isCoinBase():
             return True
 
         prev_txs = {}
