@@ -23,10 +23,10 @@ class Block(object):
         _nonce (int): A 32 bit arbitrary random number that is typically used once.
     """
 
-    def __init__(self, transaction_lst, prev_block_hash=''):
-        self._timestamp = utils.encode(str(int(time.time())))
+    def __init__(self, transaction_lst):
+        self._timestamp = None
         self._tx_lst = transaction_lst
-        self._prev_block_hash = utils.encode(prev_block_hash)
+        self._prev_block_hash = None
         self._hash = None
         self._nonce = None
 
@@ -38,21 +38,47 @@ class Block(object):
     def hash(self):
         return utils.decode(self._hash)
 
+    def getHash(self):
+        data_lst = [self.prev_block_hash,
+                    self.hash_transactions(),
+                    self.timestamp,
+                    str(1 << (256 - 1)),
+                    str(self._nonce)]
+        data = utils.encode(''.join(data_lst))
+        hash_hex = utils.sum256_hex(data)
+
+        self._hash = utils.encode(hash_hex)
+
+        return hash_hex
+
     @property
     def prev_block_hash(self):
         return utils.decode(self._prev_block_hash)
+
+    @prev_block_hash.setter
+    def prev_block_hash(self, r_value):
+        self._prev_block_hash = utils.encode(r_value)
 
     @property
     def timestamp(self):
         return str(self._timestamp)
 
+    @timestamp.setter
+    def timestamp(self, r_value):
+        self._timestamp = utils.encode(str(r_value))
+
     @property
     def nonce(self):
         return str(self._nonce)
 
+    @nonce.setter
+    def nonce(self, value):
+        self._nonce = value
+
     @property
     def transactions(self):
         return self._tx_lst
+
 
     def pow_of_block(self):
         # Makes the proof of work of the current Block
@@ -70,6 +96,30 @@ class Block(object):
 
         m_tree = MerkleTree(tx_byte_lst)
         return utils.decode(binascii.hexlify(m_tree.root_hash))
+
+    def CheckBlock(self):
+        # Size limits
+        if len(self._tx_lst) == 0 or len(self._tx_lst) > 1000000000:
+            print("CheckBlock() : size limits failed")
+            return False
+
+        # First transaction must be coinbase, the rest must not be
+        if len(self._tx_lst) == 0 or not self._tx_lst[0].isCoinBase():
+            print("CheckBlock() : first tx is not coinbase")
+            return False
+
+        for i in range(1, len(self._tx_lst)):
+            if self._tx_lst[i].isCoinBase():
+                print("CheckBlock() : more than one coinbase")
+                return False
+
+        # Check transactions
+        for tx in self._tx_lst:
+            if not tx.CheckTransaction():
+                print("CheckBlock() : CheckTransaction failed")
+                return False
+
+        return True
 
     # def hash_transactions(self):
     #     # return a hash of the transactions in the block
@@ -92,3 +142,5 @@ class Block(object):
         :rtype: Block object.
         """
         return pickle.loads(data)
+
+
