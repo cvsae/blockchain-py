@@ -1,4 +1,5 @@
 import pickle
+from utils import GetAppDir
 
 
 class Wallets(object):
@@ -10,7 +11,7 @@ class Wallets(object):
         wallets (dict): a wallets dict.
     """
 
-    wallet_file = 'wallet.dat'
+    wallet_file = GetAppDir() + str(r'\wallet.dat')
 
     def __init__(self):
 
@@ -30,5 +31,10 @@ class Wallets(object):
         return self.wallets[addr]
 
     def save_to_file(self):
-        with open(self.wallet_file, 'wb') as f:
-            pickle.dump(self.wallets, f)
+        try:
+            with open(self.wallet_file, 'wb') as f:
+                pickle.dump(self.wallets, f)
+        except Exception as e:
+            return False
+        else:
+            return True
