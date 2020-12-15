@@ -13,7 +13,21 @@ This is a fork of [blockchain-py](https://github.com/yummybian/blockchain-py)  w
 * Block validation
 * Transaction validation
 * Mining Difficulty adjustment 
-* Networking
+* Peer-to-Peer (p2p)
+
+# Peer-to-Peer (p2p)
+
+Since this is a peer-to-peer network, every instance has to be both the a server and a client, both server and client starts with silme-qt, server runs under defaults [p2p] at silme.conf
+
+
+ -   Boostrap by way of a preconfigured list
+ -   Connect to other nodes and make a handshake.
+ -   Ask peers for nodes and connect to them
+ -   Ask peers if sync needed 
+ -   Sync with peers if needed
+ -   Ping peers
+ -   Send new mined blocks to other peers
+ -   Validate transactions and pass it to other peers 
 
 ### I have a question
 * open a issue 
