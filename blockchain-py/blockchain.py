@@ -36,14 +36,8 @@ class Blockchain(object):
     def _block_put(self, block):
 
         for tx in block._tx_lst:
-
-            print(tx)
-
             if not self.verify_transaction(tx):
-
-                print('Verify transactions faild')
-
-
+                utils.logg('Verify transactions faild, block contains one or more txs wich cant be verified')
                 return False
 
 
