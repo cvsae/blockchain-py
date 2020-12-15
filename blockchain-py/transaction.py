@@ -88,7 +88,7 @@ class Transaction(object):
         for vin in self.vin:
             if prev_txs[vin.tx_id].isCoinBase():
                 # log.error("Previous transaction is not correct")
-                print("Previous transaction is not correct")
+                utils.logg("Previous transaction is not correct")
 
         tx_copy = self._trimmed_copy()
 
@@ -109,7 +109,7 @@ class Transaction(object):
         for vin in self.vin:
             if not prev_txs[vin.tx_id].ID:
                 # log.error("Previous transaction is not correct")
-                print("Previous transaction is not correct")
+                utils.logg("Previous transaction is not correct")
 
         tx_copy = self._trimmed_copy()
 
@@ -137,19 +137,19 @@ class Transaction(object):
     def CheckTransaction(self):
         # Basic checks that don't depend on any context
         if len(self.vin) == 0 or len(self.vout) == 0:
-            print("Transaction::CheckTransaction() : vin or vout empty")
+            utils.logg("Transaction::CheckTransaction() : vin or vout empty")
             return False
 
         # Check for negative values
         for txout in self.vout:
             if txout.value < 0:
-                print("CTransaction::CheckTransaction() : txout.nValue negative")
+                utils.logg("CTransaction::CheckTransaction() : txout.nValue negative")
                 return False
 
         if not self.isCoinBase():
             for txin in self.vin:
                 if txin.tx_id == 0:
-                    print("CTransaction::CheckTransaction() : prevout is null")
+                    utils.logg("CTransaction::CheckTransaction() : prevout is null")
                     return False
         
         return True
@@ -236,7 +236,7 @@ class UTXOTx(object):
             pubkey_hash, amount)
         if acc < amount:
             # log.error('Not enough funds')
-            print('Not enough funds')
+            utils.logg('Not enough funds')
             sys.exit()
 
         # Build a list of inputs
