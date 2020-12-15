@@ -253,6 +253,19 @@ def create_hello(nodeid, version, protoversion):
     msg = {'version': version, 'protocol': protoversion}
     return make_envelope("hello", msg, nodeid)
 
+def create_ping(nodeid):
+    msg = {}
+    return make_envelope("ping", msg, nodeid)
+
+def create_pong(nodeid):
+    msg = {}
+    return make_envelope("pong", msg, nodeid)
+
+
+def create_sync(nodeid, bestheight, besthash):
+    msg = {'bestheight': bestheight, 'besthash':besthash}
+    return make_envelope("sync", msg, nodeid)
+
 
 def create_send_block(nodeid, block):
     msg = {'block': block}
