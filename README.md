@@ -15,7 +15,7 @@ This is a fork of [blockchain-py](https://github.com/yummybian/blockchain-py)  w
 * Mining Difficulty adjustment 
 * Peer-to-Peer (p2p)
 
-# Peer-to-Peer (p2p)
+### Peer-to-Peer (p2p)
 
 Since this is a peer-to-peer network, every instance has to be both the a server and a client, both server and client starts with silme-qt, server runs under defaults [p2p] at silme.conf
 
