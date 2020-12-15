@@ -819,7 +819,7 @@ class Client:
 
 
         # start networking 
-        _thread.start_new_thread(Start, ((self.factory,)))
+        #_thread.start_new_thread(Start, ((self.factory,)))
         # start local info_n
         _thread.start_new_thread(self._update, ())
         
