@@ -27,14 +27,14 @@ def GetAppDir():
         strDir = strSetDataDir        
 
     elif os.getenv("APPDATA"):
-         strDir = "%s\\lela" %os.getenv("APPDATA")
+         strDir = "%s\\mycoin" %os.getenv("APPDATA")
     elif of.getenv("USERPROFILE"):
         strAppData = "%s\\Application Data" %os.getenv("USERPROFILE")
         fMkdirDone = False 
         if not fMkdirDone:
             fMkdirDone = True
             os.mkdir(strAppData)
-        strDir = "%s\\lela" %strAppData
+        strDir = "%s\\mycoin" %strAppData
     else:
         return "."
 
