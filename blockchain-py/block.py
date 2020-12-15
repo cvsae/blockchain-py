@@ -45,7 +45,7 @@ class Block(object):
                     self.timestamp,
                     str(self.bits),
                     str(self._nonce)]
-        data = utils.encode(''.join(data_lst))
+        data = utils.encode(''.join(map(str, data_lst)))
         hash_hex = utils.sum256_hex(data)
 
         self._hash = utils.encode(hash_hex)
@@ -62,7 +62,7 @@ class Block(object):
 
     @property
     def timestamp(self):
-        return str(self._timestamp)
+        return int(self._timestamp)
 
     @property
     def bits(self):
@@ -109,23 +109,23 @@ class Block(object):
     def CheckBlock(self):
         # Size limits
         if len(self._tx_lst) == 0 or len(self._tx_lst) > 1000000000:
-            print("CheckBlock() : size limits failed")
+            utils.logg("CheckBlock() : size limits failed")
             return False
 
         # First transaction must be coinbase, the rest must not be
         if len(self._tx_lst) == 0 or not self._tx_lst[0].isCoinBase():
-            print("CheckBlock() : first tx is not coinbase")
+            utils.logg("CheckBlock() : first tx is not coinbase")
             return False
 
         for i in range(1, len(self._tx_lst)):
             if self._tx_lst[i].isCoinBase():
-                print("CheckBlock() : more than one coinbase")
+                utils.logg("CheckBlock() : more than one coinbase")
                 return False
 
         # Check transactions
         for tx in self._tx_lst:
             if not tx.CheckTransaction():
-                print("CheckBlock() : CheckTransaction failed")
+                utils.logg("CheckBlock() : CheckTransaction failed")
                 return False
 
         return True
@@ -138,7 +138,7 @@ class Block(object):
     #         tx_hashs.append(tx.ID)
 
     #     return utils.sum256_hex(utils.encode(''.join(tx_hashs)))
-
+    
     def serialize(self):
         # serializes the block
         return pickle.dumps(self)
@@ -150,6 +150,6 @@ class Block(object):
         :return: A Block object.
         :rtype: Block object.
         """
-        return pickle.loads(data)
+        return pickle.loads(data, encoding='utf-8')
 
 
